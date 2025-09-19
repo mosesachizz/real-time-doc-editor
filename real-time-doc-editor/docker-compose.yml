@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  mongo:
+    image: mongo:5
+    container_name: collab-editor-mongo
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - collab-network
+
+  server:
+    build: ./server
+    container_name: collab-editor-server
+    restart: unless-stopped
+    environment:
+      MONGODB_URI: mongodb://admin:password@mongo:27017/collab-editor?authSource=admin
+      PORT: 3001
+      CLIENT_URL: http://localhost:3000
+    ports:
+      - "3001:3001"
+    depends_on:
+      - mongo
+    networks:
+      - collab-network
+
+  client:
+    build: ./client
+    container_name: collab-editor-client
+    restart: unless-stopped
+    environment:
+      REACT_APP_SERVER_URL: http://localhost:3001
+    ports:
+      - "3000:3000"
+    depends_on:
+      - server
+    networks:
+      - collab-network
+
+  nginx:
+    image: nginx:alpine
+    container_name: collab-editor-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - server
+      - client
+    networks:
+      - collab-network
+
+volumes:
+  mongo_data:
+
+networks:
+  collab-network:
+    driver: bridge
