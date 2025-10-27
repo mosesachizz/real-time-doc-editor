@@ -91,7 +91,7 @@ function transform(opA, opB) {
 
 1. **Clone the repository**:  
    ```bash
-   git clone https://github.com/your-username/real-time-doc-editor.git
+   git clone https://github.com/mosesachizz/real-time-doc-editor.git
    cd real-time-doc-editor
    ```
 
